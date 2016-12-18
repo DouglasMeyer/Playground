@@ -10,6 +10,7 @@
   <style type="text/css">
   </style>
   <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
+  <script src="https://unpkg.com/redux@3.6.0/dist/redux.min.js"></script>
 </head>
 
 <body>
@@ -37,8 +38,43 @@
       return q;
     }, {});
     
+    
+    var actions = function(){
+      return {
+        peerOpen: ()=>({ type: 'Peer open' })
+      };
+    }();
+    
+    // var initialState = {
+    //   potentialPeers: []
+    // };
+    function reducer(state, action){
+      var r = {
+        'Peer open': ()=>{
+          var [peerId, ...potentialPeers] = state.potentialPeers;
+          var connection = peer.connect(peerId);
+          connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
+          connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
+          connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
+          connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
+          return Object.apply({}, state, { potentialPeers });
+        }
+      }[action.type];
+      if (r) return r();
+      console.log('Unknown action type: '+action.type);
+      return state;
+    }
+    var store = Redux.createStore(reducer, { potentialPeers: queryParams.peers });
+    var unsubscribeStore = store.subscribe(function(){
+      document.write('<pre>'+JSON.stringify(store.getState(), null, 4)+'</pre>');
+    });
+        
     var peer = new Peer({key: 'p6zcgijuvfclq5mi'});
-    document.write('<pre>'+JSON.stringify(queryParams, null, 4)+'</pre>');
+    peer.on('open'        , id         => { store.dispatch(actions.peerOpen()                ); });
+    peer.on('connection'  , connection => { store.dispatch(actions.peerConnection(connection)); });
+    peer.on('close'       , ()         => { store.dispatch(actions.peerClose()               ); });
+    peer.on('disconnected', ()         => { store.dispatch(actions.peerDisconnected()        ); });
+    peer.on('error'       , error      => { store.dispatch(actions.peerError(error)          ); });
   </script>
 
 </body>
