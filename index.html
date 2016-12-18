@@ -62,6 +62,7 @@
           return Object.apply({}, state, { peerId, peers: [ peerId ], potentialPeers });
         }
       }[action.type];
+      console.log('Action type: '+action.type+' = '+r);
       if (r) return r();
       console.log('Unknown action type: '+action.type);
       return state;
