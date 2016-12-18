@@ -25,8 +25,9 @@
     
     var queryParams = location.search.slice(1).split('&').reduce(function(q,s){
       var [k, v] = s.split('=');
-      var [arrayParam, arrayKey, arrayIndex] = k.match(/^(.+)\[(\d*)\]/);
+      var arrayParam = k.match(/^(.+)\[(\d*)\]/);
       if (arrayParam) {
+        var [_match, arrayKey, arrayIndex] = arrayParam;
         if(!q[arrayKey]) q[arrayKey] = [];
         if (arrayIndex) q[arrayKey][arrayIndex] = v;
         else q[arrayKey].push(v);
