@@ -54,12 +54,14 @@
       var r = {
         'Peer open': ()=>{
           var [peerId, ...potentialPeers] = state.potentialPeers;
-          var connection = peer.connect(peerId);
-          connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
-          connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
-          connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
-          connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
-          return Object.apply({}, state, { peerId, peers: [ peerId ], potentialPeers });
+          if (peerId){
+            var connection = peer.connect(peerId);
+            connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
+            connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
+            connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
+            connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
+          }
+          return Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
         }
       }[action.type];
       console.log('Action type: '+action.type+' = '+r);
