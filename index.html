@@ -69,9 +69,9 @@
     var store = Redux.createStore(reducer, { peers: [], potentialPeers: queryParams.peers || [] });
     var unsubscribeStore = store.subscribe(function(){
       var state = store.getState();
+      document.write('<pre>'+JSON.stringify(state, null, 4)+'</pre>');
       var queryString = state.peers.map(p=>'peers[]='+p+'').join(',');
       history.replaceState(null, null, "/Playground/?"+queryString);
-      document.write('<pre>'+JSON.stringify(state, null, 4)+'</pre>');
     });
         
     var peer = new Peer({key: 'p6zcgijuvfclq5mi'});
