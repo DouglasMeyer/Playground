@@ -8,11 +8,8 @@
   <title>Playground</title>
 
   <style type="text/css">
-    body:before {
-      content: attr(message);
-    }
   </style>
-
+  <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
 </head>
 
 <body>
@@ -23,14 +20,24 @@
       delete sessionStorage.redirect;
       if (redirect && redirect != location.href) {
         history.replaceState(null, null, redirect);
-        // REMOVE THIS - just showing the redirect route in the UI
-        document.body.setAttribute('message', 'This page was redirected by 404.html, from the route: ' + redirect);
-      }
-      else {
-        // REMOVE THIS - just showing the redirect route in the UI
-        document.body.setAttribute('message', 'This page was loaded directly from the index.html file');
       }
     })();
+    
+    var queryParams = location.search.slice(1).split('&').reduce(function(q,s){
+      var [k, v] = s.split('=');
+      var [arrayParam, arrayKey, arrayIndex] = k.match(/^(.+)\[(\d*)\]/);
+      if (arrayParam) {
+        if(!q[arrayKey]) q[arrayKey] = [];
+        if (arrayIndex) q[arrayKey][arrayIndex] = v;
+        else q[arrayKey].push(v);
+      } else {
+        q[k] = v;
+      }
+      return q;
+    }, {});
+    
+    var peer = new Peer({key: 'p6zcgijuvfclq5mi'});
+    document.write('<pre>'+JSON.stringify(queryParams, null, 4)+'</pre>');
   </script>
 
 </body>
