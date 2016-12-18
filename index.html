@@ -70,7 +70,7 @@
     var unsubscribeStore = store.subscribe(function(){
       // location.search
       var state = store.getState();
-      var queryString = state.potentialPeers.map(p=>'peers[]='+p+'').join(',');
+      var queryString = state.peers.map(p=>'peers[]='+p+'').join(',');
       history.replaceState(null, null, "/Playground/?"+queryString);
       document.write('<pre>'+JSON.stringify(state, null, 4)+'</pre>');
     });
