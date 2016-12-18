@@ -45,12 +45,12 @@
       };
     }();
     
-    // var initialState = {
-    //   peerId: String,
-    //   potentialPeers: [],
-    //   peers: []
-    // };
-    function reducer(state, action){
+    var initialState = {
+      //peerId: String,
+      potentialPeers: [],
+      peers: []
+    };
+    function reducer(state=initialState, action){
       var r = {
         'Peer open': ()=>{
           var [peerId, ...potentialPeers] = state.potentialPeers;
