@@ -41,12 +41,14 @@
     
     var actions = function(){
       return {
-        peerOpen: ()=>({ type: 'Peer open' })
+        peerOpen: peerId =>({ type: 'Peer open', peerId })
       };
     }();
     
     // var initialState = {
-    //   potentialPeers: []
+    //   peerId: String,
+    //   potentialPeers: [],
+    //   peers: []
     // };
     function reducer(state, action){
       var r = {
@@ -57,7 +59,7 @@
           connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
           connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
           connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
-          return Object.apply({}, state, { potentialPeers });
+          return Object.apply({}, state, { peerId, peers: [ peerId ], potentialPeers });
         }
       }[action.type];
       if (r) return r();
@@ -66,11 +68,15 @@
     }
     var store = Redux.createStore(reducer, { potentialPeers: queryParams.peers });
     var unsubscribeStore = store.subscribe(function(){
-      document.write('<pre>'+JSON.stringify(store.getState(), null, 4)+'</pre>');
+      // location.search
+      var state = store.getState();
+      var queryString = state.potentialPeers.map(p=>'peers[]='+p+'').join(',');
+      history.replaceState(null, null, "/Playground/?"+queryString);
+      document.write('<pre>'+JSON.stringify(state, null, 4)+'</pre>');
     });
         
     var peer = new Peer({key: 'p6zcgijuvfclq5mi'});
-    peer.on('open'        , id         => { store.dispatch(actions.peerOpen()                ); });
+    peer.on('open'        , id         => { store.dispatch(actions.peerOpen(id)              ); });
     peer.on('connection'  , connection => { store.dispatch(actions.peerConnection(connection)); });
     peer.on('close'       , ()         => { store.dispatch(actions.peerClose()               ); });
     peer.on('disconnected', ()         => { store.dispatch(actions.peerDisconnected()        ); });
