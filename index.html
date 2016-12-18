@@ -66,9 +66,8 @@
       console.log('Unknown action type: '+action.type);
       return state;
     }
-    var store = Redux.createStore(reducer, { potentialPeers: queryParams.peers || [] });
+    var store = Redux.createStore(reducer, { peers: [], potentialPeers: queryParams.peers || [] });
     var unsubscribeStore = store.subscribe(function(){
-      // location.search
       var state = store.getState();
       var queryString = state.peers.map(p=>'peers[]='+p+'').join(',');
       history.replaceState(null, null, "/Playground/?"+queryString);
