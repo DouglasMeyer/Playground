@@ -62,8 +62,8 @@
             connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
             connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
           }
-          console.log('applying', Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers }));
-          return Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
+          console.log('applying', Object.assign({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers }));
+          return Object.assign({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
         }
       }[action.type];
       // console.log('Action type: '+action.type, JSON.stringify(state, null, 4));
