@@ -42,7 +42,7 @@
     var actions = function(){
       return {
         peerOpen: peerId =>({ type: 'Peer open', peerId }),
-        peerError: error =>({ type: 'Peer error', error }),
+        peerUnavailable: error =>({ type: 'Peer unavailable', error }),
         peerConnection: connection =>({ type: 'Peer connection', connection }),
         connectionOpen: connection =>({ type: 'Connection open', connection })
       };
@@ -69,9 +69,7 @@
         'Peer open': ({ peerId })=>{
           return Object.assign({}, tryNextPotentialPeer(state), { peerId, peers: [ peerId ] });
         },
-        'Peer error': ({ error })=>{
-          debugger;
-          console.error('Peer error', error);
+        'Peer unavailable': ()=>{
           return tryNextPotentialPeer(state);
         },
         'Peer connection': ({ connection })=>{
@@ -83,6 +81,7 @@
           return tryNextPotentialPeer(state);
         }
       }[action.type];
+      console.log('Action', action);
       if (r) return r(action);
       console.log('Unknown action type: '+action.type);
       return state;
@@ -105,7 +104,13 @@
     peer.on('connection'  , connection => { store.dispatch(actions.peerConnection(connection)); });
     peer.on('close'       , ()         => { store.dispatch(actions.peerClose()               ); });
     peer.on('disconnected', ()         => { store.dispatch(actions.peerDisconnected()        ); });
-    peer.on('error'       , error      => { store.dispatch(actions.peerError(error)          ); });
+    peer.on('error', error => {
+      var a = {
+        'peer-unavailable': actions.peerUnavailable
+      }[error.type];
+      if (a) store.dispatch(a(error));
+      else console.error('Unknown peer error: '+error.type);
+    });
   </script>
 
 </body>
