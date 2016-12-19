@@ -76,7 +76,7 @@
         },
         'Peer connection': ({ connection })=>{
           return Object.assign({}, state, {
-            peers: state.peers.concat(connection.peer);
+            peers: state.peers.concat(connection.peer)
           });
         },
         'Connection open': ({ connection })=>{
