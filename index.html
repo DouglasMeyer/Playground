@@ -61,7 +61,12 @@
         connection.on('data' , data => { store.dispatch(actions.connectionData(data)      ); });
         connection.on('open' , ()   => { store.dispatch(actions.connectionOpen(connection)); });
         connection.on('close', ()   => { store.dispatch(actions.connectionClose()         ); });
-        connection.on('error', ()   => { store.dispatch(actions.connectionError()         ); });
+        connection.on('error', error => {
+          var a = {
+          }[error.type];
+          if (a) store.dispatch(a(error));
+          else console.error('Unknown connection error: '+error.type);
+        });
       }
       return Object.assign({}, state, { potentialPeers });
     }
