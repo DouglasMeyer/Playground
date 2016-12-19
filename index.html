@@ -53,7 +53,9 @@
     function reducer(state, action){
       var r = {
         'Peer open': ()=>{
+          console.log(action.type, state.potentialPeers);
           var [peerId, ...potentialPeers] = state.potentialPeers;
+          console.log(action.type, peerId);
           if (peerId){
             var connection = peer.connect(peerId);
             connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
@@ -61,10 +63,11 @@
             connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
             connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
           }
+          console.log(action.type, peerId);
           return Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
         }
       }[action.type];
-      console.log('Action type: '+action.type, JSON.stringify(state, null, 4));
+      // console.log('Action type: '+action.type, JSON.stringify(state, null, 4));
       if (r) return r();
       console.log('Unknown action type: '+action.type);
       return state;
