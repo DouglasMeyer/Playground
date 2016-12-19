@@ -62,6 +62,7 @@
         connection.on('open' , ()   => { store.dispatch(actions.connectionOpen(connection)); });
         connection.on('close', ()   => { store.dispatch(actions.connectionClose()         ); });
         connection.on('error', error => {
+          console.log(window.error = error);
           var a = {
           }[error.type];
           if (a) store.dispatch(a(error));
