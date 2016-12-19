@@ -42,6 +42,7 @@
     var actions = function(){
       return {
         peerOpen: peerId =>({ type: 'Peer open', peerId }),
+        peerDisconnected: =>({ type: 'Peer disconnected' })
         peerUnavailable: error =>({ type: 'Peer unavailable', error }),
         peerConnection: connection =>({ type: 'Peer connection', connection }),
         connectionOpen: connection =>({ type: 'Connection open', connection })
@@ -68,6 +69,9 @@
       var r = {
         'Peer open': ({ peerId })=>{
           return Object.assign({}, tryNextPotentialPeer(state), { peerId, peers: [ peerId ] });
+        },
+        'Peer disconnected': ()=>{
+          peer.reconnect();
         },
         'Peer unavailable': ()=>{
           return tryNextPotentialPeer(state);
