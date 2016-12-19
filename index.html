@@ -42,7 +42,9 @@
     var actions = function(){
       return {
         peerOpen: peerId =>({ type: 'Peer open', peerId }),
-        peerError: error =>({ type: 'Peer error', error })
+        peerError: error =>({ type: 'Peer error', error }),
+        peerConnection: connection =>({ type: 'Peer connection', connection }),
+        connectionOpen: connection =>({ type: 'Connection open', connection })
       };
     }();
     
@@ -55,10 +57,10 @@
       var [newPeer, ...potentialPeers] = state.potentialPeers;
       if (newPeer){
         var connection = peer.connect(newPeer);
-        connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
-        connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
-        connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
-        connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
+        connection.on('data' , data => { store.dispatch(actions.connectionData(data)      ); });
+        connection.on('open' , ()   => { store.dispatch(actions.connectionOpen(connection)); });
+        connection.on('close', ()   => { store.dispatch(actions.connectionClose()         ); });
+        connection.on('error', ()   => { store.dispatch(actions.connectionError()         ); });
       }
       return Object.assign({}, state, { potentialPeers });
     }
@@ -68,7 +70,16 @@
           return Object.assign({}, tryNextPotentialPeer(state), { peerId, peers: [ peerId ] });
         },
         'Peer error': ({ error })=>{
+          debugger;
           console.error('Peer error', error);
+          return tryNextPotentialPeer(state);
+        },
+        'Peer connection': ({ connection })=>{
+          return Object.assign({}, state, {
+            peers: state.peers.concat(connection.peer);
+          });
+        },
+        'Connection open': ({ connection })=>{
           return tryNextPotentialPeer(state);
         }
       }[action.type];
