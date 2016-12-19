@@ -62,13 +62,14 @@
             connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
             connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
           }
+          console.log('applying', { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
           return Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
         }
       }[action.type];
       // console.log('Action type: '+action.type, JSON.stringify(state, null, 4));
       if (r) {
         var s = r();
-        console.log(s);
+        console.log('new state', JSON.stringify(s, null, 4));
         return s;
       }
       console.log('Unknown action type: '+action.type);
