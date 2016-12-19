@@ -74,11 +74,14 @@
         },
         'Peer connection': ({ connection })=>{
           return Object.assign({}, state, {
-            peers: state.peers.concat(connection.peer)
+            peers: [ ...state.peers, connection.peer ]
           });
         },
         'Connection open': ({ connection })=>{
-          return tryNextPotentialPeer(state);
+          var [ ...peers, myPeer ] = state.peers;
+          return Object.assign({}, tryNextPotentialPeer(state), {
+            peers: [ ...peers, connection.peer, myPeer ]
+          });
         }
       }[action.type];
       console.log('Action', action);
