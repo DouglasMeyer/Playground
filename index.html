@@ -41,37 +41,38 @@
     
     var actions = function(){
       return {
-        peerOpen: peerId =>({ type: 'Peer open', peerId })
+        peerOpen: peerId =>({ type: 'Peer open', peerId }),
+        peerError: error =>({ type: 'Peer error', error })
       };
     }();
     
-    //var initialState = {
-    //  //peerId: String,
+    //state = {
+    //  peerId: String,
     //  potentialPeers: [],
     //  peers: []
     //};
+    function tryNextPotentialPeer(state){
+      var [newPeer, ...potentialPeers] = state.potentialPeers;
+      if (newPeer){
+        var connection = peer.connect(newPeer);
+        connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
+        connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
+        connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
+        connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
+      }
+      return Object.assign({}, state, { potentialPeers });
+    }
     function reducer(state, action){
       var r = {
-        'Peer open': ()=>{
-          console.log(action.type, action, state.potentialPeers);
-          var [peerId, ...potentialPeers] = state.potentialPeers;
-          if (peerId){
-            var connection = peer.connect(peerId);
-            connection.on('data' , data => { store.dispatch(actions.connectionData(data)); });
-            connection.on('open' , ()   => { store.dispatch(actions.connectionOpen()    ); });
-            connection.on('close', ()   => { store.dispatch(actions.connectionClose()   ); });
-            connection.on('error', ()   => { store.dispatch(actions.connectionError()   ); });
-          }
-          console.log('applying', Object.assign({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers }));
-          return Object.assign({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
+        'Peer open': ({ peerId })=>{
+          return Object.assign({}, tryNextPotentialPeer(state), { peerId, peers: [ peerId ] });
+        },
+        'Peer error': ({ error })=>{
+          console.error('Peer error', error);
+          return tryNextPotentialPeer(state);
         }
       }[action.type];
-      // console.log('Action type: '+action.type, JSON.stringify(state, null, 4));
-      if (r) {
-        var s = r();
-        console.log('new state', JSON.stringify(s, null, 4));
-        return s;
-      }
+      if (r) return r(action);
       console.log('Unknown action type: '+action.type);
       return state;
     }
@@ -79,7 +80,6 @@
       peers: [],
       potentialPeers: queryParams.peers || []
     };
-    console.log('initialState', JSON.stringify(initialState, null, 4));
     var store = Redux.createStore(reducer, initialState);
     var unsubscribeStore = store.subscribe(function(){
       var state = store.getState();
