@@ -42,7 +42,7 @@
     var actions = function(){
       return {
         peerOpen: peerId =>({ type: 'Peer open', peerId }),
-        peerDisconnected: ()=>({ type: 'Peer disconnected' })
+        peerDisconnected: ()=>({ type: 'Peer disconnected' }),
         peerUnavailable: error =>({ type: 'Peer unavailable', error }),
         peerConnection: connection =>({ type: 'Peer connection', connection }),
         connectionOpen: connection =>({ type: 'Connection open', connection })
