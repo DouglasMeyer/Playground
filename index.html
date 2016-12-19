@@ -45,12 +45,12 @@
       };
     }();
     
-    var initialState = {
-      //peerId: String,
-      potentialPeers: [],
-      peers: []
-    };
-    function reducer(state=initialState, action){
+    //var initialState = {
+    //  //peerId: String,
+    //  potentialPeers: [],
+    //  peers: []
+    //};
+    function reducer(state, action){
       var r = {
         'Peer open': ()=>{
           var [peerId, ...potentialPeers] = state.potentialPeers;
@@ -64,12 +64,17 @@
           return Object.apply({}, state, { peerId: action.peerId, peers: [ action.peerId ], potentialPeers });
         }
       }[action.type];
-      console.log('Action type: '+action.type+' = '+r);
+      console.log('Action type: '+action.type);
       if (r) return r();
       console.log('Unknown action type: '+action.type);
       return state;
     }
-    var store = Redux.createStore(reducer, { peers: [], potentialPeers: queryParams.peers || [] });
+    var initialState = {
+      peers: [],
+      potentialPeers: queryParams.peers || []
+    };
+    console.log('initialState', JSON.stringify(initialState, null, 4));
+    var store = Redux.createStore(reducer, initialState);
     var unsubscribeStore = store.subscribe(function(){
       var state = store.getState();
       console.log(JSON.stringify(state, null, 4));
