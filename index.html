@@ -78,9 +78,9 @@
           });
         },
         'Connection open': ({ connection })=>{
-          var [ ...peers, myPeer ] = state.peers;
+          var [ myPeer, ...peers ] = state.peers.reverse();
           return Object.assign({}, tryNextPotentialPeer(state), {
-            peers: [ ...peers, connection.peer, myPeer ]
+            peers: [ ...(peers.reverse()), connection.peer, myPeer ]
           });
         }
       }[action.type];
