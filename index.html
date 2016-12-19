@@ -45,7 +45,8 @@
         peerDisconnected: ()=>({ type: 'Peer disconnected' }),
         peerUnavailable: error =>({ type: 'Peer unavailable', error }),
         peerConnection: connection =>({ type: 'Peer connection', connection }),
-        connectionOpen: connection =>({ type: 'Connection open', connection })
+        connectionOpen: connection =>({ type: 'Connection open', connection }),
+        connectionClose: connection =>({ type: 'Connection close', connection })
       };
     }();
     
@@ -58,11 +59,11 @@
       var [newPeer, ...potentialPeers] = state.potentialPeers;
       if (newPeer){
         var connection = peer.connect(newPeer);
-        connection.on('data' , data => { store.dispatch(actions.connectionData(data)      ); });
-        connection.on('open' , ()   => { store.dispatch(actions.connectionOpen(connection)); });
-        connection.on('close', ()   => { store.dispatch(actions.connectionClose()         ); });
+        connection.on('data' , data => { store.dispatch(actions.connectionData(data)       ); });
+        connection.on('open' , ()   => { store.dispatch(actions.connectionOpen(connection) ); });
+        connection.on('close', ()   => { store.dispatch(actions.connectionClose(connection)); });
         connection.on('error', error => {
-          console.log(window.error = error);
+          console.log('window.error:', window.error = error);
           var a = {
           }[error.type];
           if (a) store.dispatch(a(error));
@@ -91,6 +92,14 @@
           var [ myPeer, ...peers ] = state.peers.reverse();
           return Object.assign({}, tryNextPotentialPeer(state), {
             peers: [ ...(peers.reverse()), connection.peer, myPeer ]
+          });
+        },
+        'Connection close': ({ connection })=>{
+          var peers = state.peers;
+          var index = peers.indexOf(connection.peer);
+          if (index === -1) return state;
+          return Object.assign({}, state, {
+            peers: [ ...(peers.slice(0,index)), ...(peers.slice(index+1)) ]
           });
         }
       }[action.type];
